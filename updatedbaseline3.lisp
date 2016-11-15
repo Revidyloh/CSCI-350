@@ -6,6 +6,7 @@
 (defparameter *store-mono* ()) ;;store monochromatics to be used with last-response
 (defparameter *color-freq* ()) ;;store the frequency of each color
 (defparameter *store-guess* ()) ;;store all guesses
+(defparameter *combos* ()) ;;store all combinations
 (defun baseline3 (board colors SCSA last-response)
   (declare (ignore SCSA))
   (let ((guess ()) (previous-guess ()) (check 0))
