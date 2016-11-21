@@ -1,3 +1,5 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; BASELINE3
+
 (defparameter *counter2* 0) ;;for monochromatic iteration
 (defparameter *counter3* 0) ;;for increment
 (defparameter *in-answer* ()) ;;store all colors in answers
@@ -16,6 +18,8 @@
         (unless (= (first last-response) 0) (progn (push (first previous-guess) *in-answer*) ;;if the bull count = 0 from last response, ignore this code
           (loop for x from 1 to (first last-response) do (progn (push (first previous-guess) *color-freq*) (incf *bull-count*)))))))) ;;if != 0, put color into in-answer, and obtain its frequency within the answer
           ;;example: in-answer -> (A B C); color-freq -> (A A B C C) = two As, 1 B, 2 Cs
+
+    (if (= *bull-count* board) (setf check 1)) ;;remove extra non-answer monochromatic
     
     (cond ((= check 0) guess) ;;if it's a monochromatic, make the guess (only evaluates to true when guess = monochromatic)
       ((and (> (length *store-mono*) 1) (= check 1)) (progn ;;deal with the last monochromatic
