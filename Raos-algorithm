@@ -1,0 +1,58 @@
+(raos-algorithm (Colors Board SCSA Last-response)
+;;whatever we do for setup
+;(setup the game)
+;;how are we going to enter guesses? 
+;(try (trial, bulls, cows))
+(while (and (bulls < N) (not game-finished));;whatever our termination condition is will be game-finished
+ (update 'inferences)
+(getnext 'trial)
+(if (= (numfix 'inferences) N)
+(setf game-finished true)
+(try (trial,bulls, cows))))
+)      
+
+
+
+(defun tied (i)
+ (loop for x in 'colors
+   (if (= i x) (return true))))
+
+(defun itscolor (i)
+(loop for x in 'colors
+   (if (= i x) (return x))))
+
+(defun len (L)
+(return (length '(L))))
+
+(defun nextpos (i)
+(return (first(rest '(sublist)))))
+
+;;(defun secondunfixed(inferences) ;;;struggling with defining this one 
+
+
+(defun getnext(trial)
+(loop for i from 1 to N
+  do;;(n= number of positions)
+  (cond 
+((tied i)
+  (setf g (itscolor i)))
+  ((= i (nextpos (beingfixed)))
+    (setf g beingfixed))
+  ((= (length (inferences)) N)
+  (setf g (secondunfixed(inferences))))
+(t (setf g beingconsidered)))))
+
+
+(defun addlists (gain beingconsidered inferences)
+  (loop from 1 to gain;;this may not be properly structured
+    do(cons beingconsidered inferences)))
+
+;;(defun fix (beingfixed) 
+
+
+
+
+
+(defun update(inferences) 
+  (if (= beingfixed 0) ((setf gain (+ bulls cows)) 
+))
