@@ -1,10 +1,11 @@
 
-;mystery-1
+;mystery-1 three-color-alternating
 ;makes a list that alternates 3 colors
 ;(Mastermind 100 5 'three-color-alternating)
 ;(play-tournament *Mastermind* 'RandomFolks 'three-color-alternating 25)
 
-(defun three-color-alternating (length colors)
+
+(defun mystery-1 (length colors)
   (loop with choices = (choose-n-random 3 colors) 
      
      with first-color = (first choices)
@@ -24,7 +25,7 @@
 ;makes a 3-color list 
 ;(Mastermind 7 5 'three-color) 
 ;(play-tournament *Mastermind* 'RandomFolks 'three-color 25)
-(defun three-color (length colors)
+(defun mystery-3 (length colors)
   (loop with choices = (choose-n-random 3 colors)
      for i from 1 to length 
      collect (random-chooser choices)))
@@ -33,7 +34,7 @@
 ;makes a list that alternates 2 colors
 ;(Mastermind 7 5 'two-color-alternating)
 ;(play-tournament *Mastermind* 'RandomFolks 'two-color-alternating 25)
-(defun two-color-alternating (length colors)
+(defun mystery-4 (length colors)
   (loop with choices = (choose-n-random 2 colors) 
      
      with first-color = (first choices)
@@ -48,7 +49,7 @@
 ;makes a list that usually has fewer (3 or 4) colors
 ;(Mastermind 7 5 'usually-fewer3or4)
 ;(play-tournament *Mastermind* 'RandomFolks 'usually-fewer3or4 25)
-(defun usually-fewer3or4 (length colors)
+(defun mystery-5 (length colors)
   (let* ((probability (random 100))
 	 (coin-flip (when (< probability 90) (random-chooser '(2 3))))
 	 (choices (cond (coin-flip (if (= 3 coin-flip) (choose-n-random 4 colors) (choose-n-random 3 colors)))
@@ -62,7 +63,7 @@
 ;(Mastermind 7 5 'prefer-fewer) 
 ;(play-tournament *Mastermind* 'RandomFolks 'prefer-fewer 25)
 
-(defun prefer-fewer (length colors)
+(defun mystery-2 (length colors)
   (let* ((probability (random 100))
 	 (color-count (length colors))
 	 (coin-flip (cond ((<= probability 49) 1)
