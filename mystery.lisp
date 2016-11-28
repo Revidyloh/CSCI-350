@@ -44,7 +44,34 @@
      collect first-color
      else collect second-color)) 
      
-     
-     
-     
-;mystery-2 and mystery-5 are working with probability i will try to find out their patterns 
+;mystery-5
+;makes a list that usually has fewer (3 or 4) colors
+;(Mastermind 7 5 'usually-fewer3or4)
+;(play-tournament *Mastermind* 'RandomFolks 'usually-fewer3or4 25)
+(defun usually-fewer3or4 (length colors)
+  (let* ((probability (random 100))
+	 (coin-flip (when (< probability 90) (random-chooser '(2 3))))
+	 (choices (cond (coin-flip (if (= 3 coin-flip) (choose-n-random 4 colors) (choose-n-random 3 colors)))
+			(t colors))))
+    (loop for i from 1 to length
+       collect (random-chooser choices))))
+
+
+;Mystery-2
+;makes a list with preferences for fewer colors
+;(Mastermind 7 5 'prefer-fewer) 
+;(play-tournament *Mastermind* 'RandomFolks 'prefer-fewer 25)
+
+(defun prefer-fewer (length colors)
+  (let* ((probability (random 100))
+	 (color-count (length colors))
+	 (coin-flip (cond ((<= probability 49) 1)
+		      ((<= probability 74) 2)
+		      ((<= probability 87) (if (>= color-count 3) 3 color-count))
+		      ((<= probability 95) (if (>= color-count 4) 4 color-count))
+		      ((<= probability 98) (if (>= color-count 5) 5 color-count))
+		      (t (if (>= color-count 6) (random-chooser (loop for i from 6 to color-count 
+								   collect i)) color-count))))
+	 (choices (choose-n-random coin-flip colors))) 
+    (loop for i from 1 to length
+       collect (random-chooser choices))))
