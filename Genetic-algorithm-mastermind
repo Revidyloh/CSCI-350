@@ -1,0 +1,71 @@
+;;Genetic Mastermind Algorithm
+
+(defun reproduce (population);;adapted
+  (let ((offspring nil)
+        (d (distribution population)))
+    (dotimes (i (/ (length population) 2))
+      (let ((x (selectone d))
+            (y (selectone d)))
+        (crossover x y)
+        (setq offspring (nconc (list x y) offspring))))
+    offspring))
+
+(defun fitness (code i potential-bulls potential cows bull-list cow-list board)
+ (let (fit (+ 
+(+ 
+(* a
+(loop for q from 1 to i sum (- (potential-bulls code) (nth q bull-list))))
+ (loop for q from 1 to i sum (- (potential-cows code) (nth q cow-list) ))) 
+(* b (* board (- i 1)))))) fit)
+
+(defun update-lists (bull-list cow-list)
+  (append (first last-response) bull-list)
+  (append (first( rest last-response)) cow-list)
+)
+
+(defun distribution (population);;adapted
+  (let* ((genotypes (remove-duplicates population :test #'equal))
+  (sum (apply #'+ (mapcar #'fitness genotypes))))
+    (mapcar #'(lambda (x) (cons (/ (fitness x) sum) x)) genotypes)))
+
+(defun selectone (distribution);;adapted
+  (let ((random (random 1.0))
+        (prob 0)
+        genotype)
+    (some #'(lambda (pair)
+       (incf prob (first pair))
+       (if (> random prob) nil
+          ;;else
+          (setq genotype (rest pair))))
+       distribution)
+    (mutate genotype)))
+
+(defun mutate (genotype);;adapted
+  (mapcar #'(lambda (x)
+       (if (> (random 1.0) 0.03) x
+          ;; else
+          (if (= x 1) 0
+             ;; else
+             1)))
+   genotype))
+
+(defun crossover (x y)
+  (if (> (random 1.0) 0.6) (list x y)
+    ;;else
+    (let* ((site (random (length x)))
+    (swap (rest (nthcdr site x))))
+      (setf (rest (nthcdr site x)) (rest (nthcdr site y)))
+      (setf (rest (nthcdr site y)) swap))))
+
+(defun gen (board colors scsa last-response)
+ (if (= last-response nil) (setf i 1))
+ (if (= last-response nil) (return 'inital-guess))
+  (loop while (not (= bulls board)) 
+         (do (inc i)
+         (let (E nil) (h 1))
+         (loop while (and (=< h maxgen) (=< E maxsize))
+              (do  (reproduce population);subject to heavy change
+            (fitness code i potential-bulls potential cows bull-list cow-list board)
+            
+                (incf h) 
+))(return guess))))
