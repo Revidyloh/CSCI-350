@@ -4,5 +4,5 @@
 (defun DMMG (board colors SCSA last-response)
   (when (equal SCSA 'ab-color) (ab-color-guesser board colors SCSA last-response))
   (when (equal SCSA 'only-once) (only-once-guesser board colors SCSA last-response))
-  *guess*
-) 
+  (when (equal SCSA 'first-and-last) (first-and-last-guesser board colors SCSA last-response))
+  *guess*) 
