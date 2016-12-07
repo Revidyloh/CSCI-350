@@ -1,55 +1,152 @@
 ;;Genetic Mastermind Algorithm
 
-(defun reproduce (population);;adapted
-  (let ((offspring nil)
-        (d (distribution population)))
-    (dotimes (i (/ (length population) 2))
-      (let ((x (selectone d))
-            (y (selectone d)))
-        (crossover x y)
-        (setq offspring (nconc (list x y) offspring))))
-    offspring))
 
-(defun fitness (code i potential-bulls potential cows bull-list cow-list board)
- (let (fit (+ 
+(defun new-pop (population);;adapted
+ (if (oddp (length population)) (pop population))   
+(let ((offspring nil) 
+        (d (fitness-mapping  population))) 
+    (dotimes (i (/ (length population) 2)) ;;; generates guesses equal to the amount the population halved i # of times
+      (let ((x (selectone d)) ;;; picks out two guesses from our population to alter
+            (y (selectone d))) 
+        (crossover x y) ;;; exchanges subsequences of colors between the chosen guesses
+        (setq offspring (nconc (list x y) offspring)))) ;;; puts the new guesses into a list
+    offspring)) ;;; returns the new generation population
+
+(defun new-pop (population);;adapted
+ (if (oddp (length population)) (pop population))   
+(let ((offspring nil) 
+        ) 
+    (dotimes (i (/ (length population) 2)) ;;; generates guesses equal to the amount the population halved i # of times
+      (let ((x (selectone population)) ;;; picks out two guesses from our population to alter
+            (y (selectone population))) 
+        (crossover x y) ;;; exchanges subsequences of colors between the chosen guesses
+        (setq offspring (nconc (list x y) offspring)))) ;;; puts the new guesses into a list
+    offspring)) ;;; returns the new generation population
+
+
+;the newer, better version
+(defun fitness (code)
+ (let  ((fit (+ ;;;defining the fitness variable(this is one big equation
 (+ 
-(* a
-(loop for q from 1 to i sum (- (potential-bulls code) (nth q bull-list))))
- (loop for q from 1 to i sum (- (potential-cows code) (nth q cow-list) ))) 
-(* b (* board (- i 1)))))) fit)
+(* 1 (loop for q from 1 to *turns* sum 
+(- (first (potential-bulls&cows code (nth q *guess-list*) *colors*))  (nth q *bull-list*)))) ;;; basically the sum of the differences between the hypothetical bulls/cows and the bulls/cows of previous guesses are multiplied by constants and added
+ (loop for q from 1 to *turns* sum 
+(- (first(rest(potential-bulls&cows code (nth q *guess-list*) *colors*))) (nth q *cow-list*)))) 
+(* 2 (* *board* (- *turns* 1)))))) fit));;; a and b are constants 
 
-(defun update-lists (bull-list cow-list)
-  (append (first last-response) bull-list)
-  (append (first( rest last-response)) cow-list)
+(defparameter *guess-list* nil)
+(defparameter *bull-list* nil)
+(defparameter *cow-list* nil)
+(defparameter *colors* nil)
+(defparameter *turns* nil)
+(defparameter *board* 0)
+(defparameter *population* nil)
+
+(defun test ()
+(setf *colors* '(a b c))
+(setf *turns* 4)
+(setf *cow-list* '(2 1 2 3))
+(setf *bull-list* '(1 2 1 0))
+(setf *board* 3)
 )
 
-(defun distribution (population);;adapted
-  (let* ((genotypes (remove-duplicates population :test #'equal))
-  (sum (apply #'+ (mapcar #'fitness genotypes))))
+(defun update-lists (last-response) ;;; keeps a record of bulls and cows for the fitness function
+  (setf *bull-list* (cons (first last-response) *bull-list*))
+  (setf *cow-list* (cons (first( rest last-response)) *cow-list*)))
+
+;converts color letters to numbers
+;notice that T cannot be a letter here, so TT is used instead
+    (E 4)
+    (F 5)
+    (G 6)
+    (H 7)
+    (I 8)
+    (J 9)
+    (K 10)
+    (L 11)
+    (M 12)
+    (N 13)
+    (O 14)
+    (P 15)
+    (Q 16)
+    (R 17)
+    (S 18)
+    (TT 19)
+    (U 20)
+    (V 21)
+    (W 22)
+    (X 23)
+    (Y 24)
+    (Z 25)))
+
+
+;counts the number of each color in a guess into an array and returns the array
+(defun color-counter2 (colors list)
+  (loop with tally = (make-array colors :initial-element 0)
+     for peg in list
+     for index = (spot1 peg)
+     do (print (list tally peg index)) (incf (aref tally index))
+     finally (return tally)))
+
+;scores a guess, returning a two-element list (#exact #other) where other means "right color, wrong location"
+(defun process-guess2 (code previous-code colors)
+  (loop with previous-code = previous-code
+     ;;with guess-color-count = (color-counter colors code)
+     ;;with true-color-count = (color-counter colors previous-code)
+     with exact-counter = 0
+     for entry in code
+     for peg in previous-code
+     for exact = (equal entry peg)
+     when exact 
+     do (incf exact-counter)
+     and do (decf (aref (color-counter2 colors code) (spot1 entry)))
+     and do (decf (aref (color-counter2 colors previous-code) (spot1 entry)))
+     finally (return (list exact-counter (loop for i from 0 to (1- colors)
+					    for guessed = (aref (color-counter2 colors code) i)
+					    for true = (aref (color-counter2 colors previous-code) i)
+					    when (<= true guessed)
+					    sum true
+					    else sum guessed)))))
+
+ 
+(defun potential-bulls&cows (code previous-code colors)
+  (let* ((colors1 (length colors)))
+  (process-guess2 code previous-code colors1)))
+  
+
+;removes duplicate guesses and places the respective fitness values of each guess into the first position of their lists
+(defun fitness-mapping (population);;adapted
+  (let* ((genotypes (remove-duplicates population :test #'equal)) ;;; sequentially (as opposed to parallel) defines variables
+  (sum (apply #'+ (mapcar #'fitness genotypes)))) ;;; calculates the fitness of each guess and maps that fitness to the guess
     (mapcar #'(lambda (x) (cons (/ (fitness x) sum) x)) genotypes)))
 
-(defun selectone (distribution);;adapted
+(defun selectone (fitness-mapping );;adapted
   (let ((random (random 1.0))
         (prob 0)
-        genotype)
+        code)
     (some #'(lambda (pair)
        (incf prob (first pair))
        (if (> random prob) nil
           ;;else
-          (setq genotype (rest pair))))
-       distribution)
-    (mutate genotype)))
+          (setq code (rest pair))))
+       fitness-mapping )
+    (mutate code)
+(switch-elements code)
+(reverse-sublist code)
+))
 
-(defun mutate (genotype);;adapted
-  (mapcar #'(lambda (x)
-       (if (> (random 1.0) 0.03) x
-          ;; else
-          (if (= x 1) 0
-             ;; else
-             1)))
-   genotype))
 
-(defun crossover (x y)
+;selects a random element from a list
+(defun random-chooser (list)
+  (nth (random (length list)) list))
+
+
+(defun initial-population ( popmax); creates a random starter population
+(loop for i from 1 to pSize collect 
+(loop for i from 1 to *board*
+     collect (random-chooser *colors*))))
+
+(defun crossover (x y) ;;adapted
   (if (> (random 1.0) 0.6) (list x y)
     ;;else
     (let* ((site (random (length x)))
@@ -57,15 +154,45 @@
       (setf (rest (nthcdr site x)) (rest (nthcdr site y)))
       (setf (rest (nthcdr site y)) swap))))
 
-(defun gen (board colors scsa last-response)
- (if (= last-response nil) (setf i 1))
- (if (= last-response nil) (return 'inital-guess))
-  (loop while (not (= bulls board)) 
-         (do (inc i)
-         (let (E nil) (h 1))
-         (loop while (and (=< h maxgen) (=< E maxsize))
-              (do  (reproduce population);subject to heavy change
-            (fitness code i potential-bulls potential cows bull-list cow-list board)
-            
-                (incf h) 
-))(return guess))))
+(defun switch-elements (code)
+  (if ( > (random 1.0) 0.03) 'code
+      (rotatef (nth (random (length code)) code) (nth (random (length code) )code)))code)
+
+(defun reverse-sublisft (code)
+ (if ( > (random 1.0) 0.5) code
+     (let* ((a (random (length code)))
+           (b (+ a (random (-(length code) a))))
+     (code (append (append (subseq code 0 a) (reverse (subseq code a b))) (subseq code b))))
+     code)))
+
+(defun make-guess (new-population)
+(let*( (selection (sort (fitness-mapping  new-population) #'> :key #'car)))
+(setf *guess-list* (cons (rest (first selection)) *guess-list*))
+(rest (first selection))))
+
+(defun mutate (code)
+  (if (> (random 1) 0.8) code
+      (progn (setf (nth (random (length code)) code) (nth (random (length *colors*)) *colors*))))
+code)
+
+
+ (defun gen (board colors last-response)
+ (if (eql last-response nil) 
+(progn (setf *turns* 1) (setf *bull-list* nil) (setf *cow-list* nil) (setf *guess-list* nil) (setf *board* board) (setf *colors* colors) (first (initial-population 1))))
+
+  (loop while (not (= (first last-response) board)) 
+         do (incf *turns*)
+            do (update-lists last-response)
+        do (let ((population (initial-population 20)) (generation 1))
+         (loop while (and (<= generation 20) (<= population 150))
+              do (new-pop population);subject to heavy change
+               do (incf generation) 
+)(make-guess population))))
+
+
+(defun mutations (population)
+  (let (( code (random-choice population)))
+    (mutate code)
+(switch-elements code)
+(reverse-sublist code)
+))
