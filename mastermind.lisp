@@ -390,6 +390,10 @@
 (defparameter *counter* 0)
 (defparameter *guess* ())
 (defparameter *bull-check* 1)
+(defparameter *in-answer* ())
+(defparameter *not-in-answer* ())
+(defparameter *check* 0)
+(defparameter *counter2* 0)
 (defun DMMG (board colors SCSA last-response)
   (when (equal SCSA 'ab-color) (ab-color-guesser board colors SCSA last-response))
   (when (equal SCSA 'only-once) (only-once-guesser board colors SCSA last-response))
@@ -408,10 +412,6 @@
     ;;example: answer is ABABA, first guess: ACCCC -> (1,0) ++bull-check and ++counter, AACCC -> (1,0) bull-count != bull-check, this must mean the second element is a B, ++bull-check
     ;;++counter, ABACC -> (3,0) ++bull-check and ++counter, ABAAC (3,0) bull-count != bull-check, fourth element must be a B, ABABA -> (5,0) winner! 
 
-(defparameter *in-answer* ())
-(defparameter *not-in-answer* ())
-(defparameter *check* 0)
-(defparameter *counter2* 0)
 (defun only-once-guesser (board colors SCSA last-response)
   (declare (ignore SCSA)) ;;ignore SCSA 
   (when (equal last-response nil) (progn (setf *counter* 0) (setf *counter2* 0) (setf *check* 0) (setf *not-in-answer* ()) (setf *in-answer* ()) (setf *guess* ()) (setf *bull-check* 1))) ;;reset everything each round
