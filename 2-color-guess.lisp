@@ -20,5 +20,5 @@
       ((and (= *check* 2) (= *bull-check* (first last-response))) (progn (incf *bull-check*) (incf *counter2*) (setf (nth *counter2* *guess*) (first *in-answer*))))
       ((and (= *check* 2) (not (= *bull-check* (first last-response)))) (setf (nth *counter2* *guess*) (second *in-answer*)) (incf *bull-check*) (incf *counter2*))
       (t nil))
-    (if (and (not (= *check* 0)) (not (= *check* 1)) (< *counter2* board)) (setf (nth *counter2* *guess*) (first *in-answer*)) *guess*)))
+    (if (and (not (= *check* 0)) (not (= *check* 1)) (< *counter2* board)) (setf (nth *counter2* *guess*) (first *in-answer*)))) *guess*)
   ;;this is very similar to ab-color except that it checks for monochromatics because we do not know the initial colors in the answer
